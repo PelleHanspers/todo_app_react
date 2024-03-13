@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-# todo_app_react
-=======
-# React + Vite
+Todo app made from code along with Web Dev Simplified (Youtube), as an effort to learn react. 
+I added a json server to the project.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
->>>>>>> master
+Check out original project here: https://youtu.be/Rh3tobg7hEo?si=2o1kHDTn9AUkeRKf
