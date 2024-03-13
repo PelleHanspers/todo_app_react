@@ -1,69 +1,87 @@
-import { useEffect, useState } from "react"
-import "./styles.css"
-import NewTodoForm from "./NewTodoForm"
-import TodoList from "./TodoList"
+import { useEffect, useState } from "react";
+import "./styles.css";
+import NewTodoForm from "./NewTodoForm";
+import TodoList from "./TodoList";
 
-export default function App() {  
-  const [todos, setTodos] = useState(() => {
-    const localValue = localStorage.getItem("ITEMS")
-    if (localValue == null) return []
+export default function App() {
+  const [todos, setTodos] = useState([]);
 
-    return JSON.parse(localValue)
-  })
-  
   useEffect(() => {
-    localStorage.setItem("ITEMS", JSON.stringify(todos))
-  }, [todos])
+    fetchTodos();
+  }, []);
 
-  function addTodo(title) {
-    //compare commented block below
-        //adds a function to 'setTodos' and return the new value for the state
-        //this function takes in an argument, which is the current value of the state
-        setTodos(currentTodos => {
-          return [
-            // '...' adds 'curentTodos' to existing array, 
-            ...currentTodos,
-            { id: crypto.randomUUID(), title, completed: false 
-            },
-          ]
+  const fetchTodos = async () => {
+    try {
+      const response = await fetch("api/todoData");
+      if (!response.ok) {
+        throw new Error("Failed to fetch todos");
+      }
+      const data = await response.json();
+      setTodos(data);
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+    }
+  };
+
+  const addTodo = async (title) => {
+    try {
+      const response = await fetch("api/todoData", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          id: crypto.randomUUID(),
+          title,
+          completed: false
         })
-        /*
-        gets the value for 'todos' which is always declared as an empty array in
-        beginning of function and then adds latest 'todos' as a new value on the end of 
-        that array.    
-        setTodos([
-            ...todos,
-            { id: crypto.randomUUID(), title: newItem, completed: false 
-            },
-          ]
-        })
-        */
-  }
+      });
+      if (!response.ok) {
+        throw new Error("Failed to add todo");
+      }
+      fetchTodos();
+    } catch (error) {
+      console.error("Error adding todo:", error);
+    }
+  };
 
-  function toggleTodo(id, completed) {
-    //takes in current todos as currentTodos and maps through all objects in array,
-    //then checks if id of todo is the same as the one passed to toggleTodo, if so it returns
-    //a the todo as a new todo with the property 'completed' toggled to the array
-    setTodos(currentTodos => {
-      return currentTodos.map(todo => {
-        if (todo.id === id) {
-          return {...todo, completed}
-        }
-        //if todo.id do not match the id passed to the function it returns the todo as is
-        return todo
-      })
-    })
-  }
+  const toggleTodo = async (id, completed) => {
+    try {
+      const response = await fetch(`${"api/todoData"}/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ completed })
+      });
+      if (!response.ok) {
+        throw new Error("Failed to toggle todo");
+      }
+      fetchTodos();
+    } catch (error) {
+      console.error("Error toggling todo:", error);
+    }
+  };
 
-  function deleteTodo(id) {
-    setTodos(currentTodos => {
-        return currentTodos.filter(todo => todo.id !== id)
-    })
-  }
-  //console.log(todos)
-  return <>
-  <NewTodoForm onSubmit={addTodo}/>
-    <h1 className="header">Todo List</h1>
-    <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
-  </>
+  const deleteTodo = async (id) => {
+    try {
+      const response = await fetch(`${"api/todoData"}/${id}`, {
+        method: "DELETE"
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete todo");
+      }
+      fetchTodos();
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+
+  return (
+    <>
+      <NewTodoForm onSubmit={addTodo} />
+      <h1 className="header">Todo List</h1>
+      <TodoList todos={todos} toggleTodo={toggleTodo} deleteTodo={deleteTodo} />
+    </>
+  );
 }
